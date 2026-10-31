@@ -40,10 +40,9 @@ redirect to the new pages — see `next.config.ts`.
 
 ## Enquiry form
 
-There is no mail server configured, so the form opens the visitor's email app
-(to info@ / cc yahoo address) or WhatsApp with all details pre-filled. To receive
-submissions directly, add an API route or a form service (e.g. Resend, Formspree)
-in `src/components/EnquiryForm.tsx`.
+Forms post to `/api/enquiry`, which emails the Shenovac team and sends the customer a branded
+confirmation via Gmail SMTP. Copy `.env.example` to `.env.local` and fill in the SMTP settings.
+Full details are in `PROJECT_GUIDE.md`, section 7.
 
 ## Deployment
 

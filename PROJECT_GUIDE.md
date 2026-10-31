@@ -16,6 +16,7 @@ manufacturer in New Delhi (est. 1990).
 | Framework | Next.js 16.4 (App Router, Turbopack, Cache Components enabled) |
 | Language | TypeScript |
 | Styling | Tailwind CSS v4 (theme defined in CSS, no `tailwind.config` file) |
+| Email | nodemailer via Gmail SMTP (`/api/enquiry`) |
 | UI library | None. Icons are inline SVGs in `src/components/Icon.tsx` |
 | Fonts | Barlow (headings) + Inter (body), loaded via `next/font/google` |
 | Node.js | v20+ (built and tested on v20.20.2) |
@@ -189,14 +190,49 @@ dark sections become invisible.
 
 ## 7. Enquiry form
 
-There is **no backend mail service**. On submit, `EnquiryForm.tsx`:
-- opens the visitor's email app to `info@shenovacengineers.com` (cc `shenovacpumps@yahoo.in`)
-  with all fields pre-filled, or
-- opens WhatsApp (`+91 98183 47008`) with the enquiry text.
+Every enquiry form (Contact page and each product page) posts to **`/api/enquiry`**, which
+sends email through Gmail SMTP using `nodemailer`.
 
-**Future upgrade:** to receive submissions directly, add a Next.js route handler
-(e.g. `src/app/api/enquiry/route.ts`) using a provider such as Resend, or a form service
-(Formspree, Web3Forms). Then change `onSubmit` to `fetch` it.
+| File | Role |
+| --- | --- |
+| `src/components/EnquiryForm.tsx` | Form UI: sending/success/error states, WhatsApp alternative, hidden honeypot field |
+| `src/app/api/enquiry/route.ts` | Validates input, rate-limits (5 per IP per 10 min), sends the emails |
+| `src/lib/mail.ts` | SMTP transport built from environment variables |
+| `src/lib/email-templates.ts` | Branded HTML + plain-text email templates |
+
+**Two emails per enquiry:**
+1. **Notification → Shenovac team** (`CONTACT_TO_EMAIL`). Shows customer details, the
+   requirement, and Reply / Call / WhatsApp buttons. *Reply-To* is set to the customer, so
+   hitting Reply answers them directly.
+2. **Confirmation → customer** (only if they gave an email). A thank-you note, a summary of
+   their enquiry, next steps and contact buttons. *Reply-To* is `CONTACT_REPLY_TO`. If this
+   email fails, the enquiry still counts as sent.
+
+**Environment variables** (see `.env.example`). Locally they live in `.env.local` (never
+committed). In production they are set in Vercel → Project → Settings → Environment Variables.
+
+| Variable | Production value |
+| --- | --- |
+| `NEXT_PUBLIC_SITE_URL` | `https://shenovacengineers.vercel.app` (change to the real domain after DNS switch) |
+| `MAIL_HOST` / `MAIL_PORT` / `MAIL_ENCRYPTION` | `smtp.gmail.com` / `587` / `tls` |
+| `MAIL_USERNAME` / `MAIL_FROM_ADDRESS` | `grade.mohit@gmail.com` |
+| `MAIL_PASSWORD` | Google App Password (stored as a Vercel Secret) |
+| `MAIL_FROM_NAME` | `Shenovac Engineers` |
+| `CONTACT_TO_EMAIL` | `info@shenovacengineers.com,shenovacpumps@yahoo.in,grade.mohit@gmail.com` |
+| `CONTACT_REPLY_TO` | `info@shenovacengineers.com` |
+
+Locally, `CONTACT_TO_EMAIL` is only `grade.mohit@gmail.com`, so testing never emails the client.
+
+After changing a Vercel environment variable, **redeploy** (push a commit, or
+`vercel deploy --prod`), because variables are read at build/deploy time.
+
+**Previewing templates:** render them with `npx tsx` (see the `notificationEmail` /
+`confirmationEmail` exports) and open the HTML in a browser.
+
+**Gmail limits and notes:** Gmail SMTP allows about 500 emails a day, which is plenty for
+enquiries. Emails are sent *from* the Gmail account; Gmail does not allow a different
+From address. For a branded sender (e.g. `noreply@shenovacengineers.com`), switch the SMTP
+settings to the company's mail host or a service like Resend or Brevo. No code changes are needed.
 
 ---
 
@@ -234,7 +270,7 @@ needs extra changes. It is not recommended.
       These pages had placeholder text on the old site and were rewritten. Booster and Plants
       have no spec tables. Add real data if available.
 - [ ] **Industrial High Vacuum Pump** currently reuses the water-cooled rotary tables. Confirm.
-- [ ] **Enquiry form backend** (see section 7).
+- [x] **Enquiry form backend.** Done: Gmail SMTP (see section 7). Consider a branded sender address later.
 - [ ] **Social media links.** None existed on the old site. Add them to the footer if wanted.
 - [ ] **Downloadable catalogue PDF.** The old site referred to a catalogue. Add it to `public/`
       and link it from product pages if available.
