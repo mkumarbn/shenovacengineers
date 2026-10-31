@@ -1,0 +1,174 @@
+@import "tailwindcss";
+
+@theme {
+  /* Brand — taken from the Shenovac logo: signal red on white, with charcoal */
+  --color-brand-50: #fff1f1;
+  --color-brand-100: #ffdfe0;
+  --color-brand-200: #ffc4c6;
+  --color-brand-300: #ff9a9e;
+  --color-brand-400: #fb5f65;
+  --color-brand-500: #ee2a31;
+  --color-brand-600: #e10f17;
+  --color-brand-700: #b70b12;
+  --color-brand-800: #970e14;
+  --color-brand-900: #7d1217;
+  --color-brand-950: #440407;
+
+  --color-ink-50: #f6f7f8;
+  --color-ink-100: #eceef1;
+  --color-ink-200: #d5d9df;
+  --color-ink-300: #b1b8c3;
+  --color-ink-400: #8691a1;
+  --color-ink-500: #677386;
+  --color-ink-600: #525c6e;
+  --color-ink-700: #434b5a;
+  --color-ink-800: #2b3039;
+  --color-ink-900: #1b1e24;
+  --color-ink-950: #111317;
+
+  --font-sans: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-heading), ui-sans-serif, system-ui, sans-serif;
+
+  --animate-marquee: marquee 40s linear infinite;
+  --animate-fade-up: fade-up 0.7s ease-out both;
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-spin-slow: spin 30s linear infinite;
+
+  @keyframes marquee {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-12px);
+    }
+  }
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-white text-ink-700 font-sans antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-display text-ink-900;
+    letter-spacing: -0.01em;
+  }
+
+  ::selection {
+    @apply bg-brand-600 text-white;
+  }
+}
+
+@utility container-x {
+  @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
+}
+
+/* Engineering blueprint grid used on dark sections */
+@utility bg-blueprint {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+@utility bg-blueprint-light {
+  background-image:
+    linear-gradient(rgba(17, 19, 23, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(17, 19, 23, 0.04) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+@utility eyebrow {
+  @apply inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-brand-600;
+  &::before {
+    content: "";
+    @apply inline-block h-0.5 w-8 bg-brand-600;
+  }
+}
+
+@utility btn {
+  @apply inline-flex items-center justify-center gap-2 rounded-md px-6 py-3 text-sm font-semibold transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600;
+}
+
+@utility btn-primary {
+  @apply bg-brand-600 text-white shadow-lg shadow-brand-600/25 hover:bg-brand-700 hover:shadow-brand-700/30;
+}
+
+@utility btn-dark {
+  @apply bg-ink-900 text-white hover:bg-ink-800;
+}
+
+@utility btn-outline {
+  @apply border border-ink-200 bg-white text-ink-900 hover:border-brand-600 hover:text-brand-600;
+}
+
+@utility btn-ghost-light {
+  @apply border border-white/25 text-white hover:border-white hover:bg-white/10;
+}
+
+@layer components {
+/* Spec tables */
+.spec-table {
+  @apply w-full min-w-max border-collapse text-sm;
+}
+.spec-table thead th {
+  @apply bg-ink-900 px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-white first:rounded-tl-lg last:rounded-tr-lg;
+}
+.spec-table tbody td {
+  @apply border-b border-ink-100 px-4 py-3 whitespace-nowrap text-ink-700;
+}
+.spec-table tbody td:first-child {
+  @apply font-semibold text-ink-900;
+}
+.spec-table tbody tr:nth-child(even) {
+  @apply bg-ink-50;
+}
+.spec-table tbody tr:hover {
+  @apply bg-brand-50;
+}
+
+/* Long-form copy */
+.prose-copy p {
+  @apply mb-4 leading-relaxed text-ink-600;
+}
+.prose-copy p:last-child {
+  @apply mb-0;
+}
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
